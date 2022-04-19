@@ -6,55 +6,55 @@ import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.concurrent.Callable;
 
-public class YearAverageRunnable implements Callable<String> {
+public class MonthAverageRunnable implements Callable<String> {
 
-	private Map<Integer, ArrayList<Double>> mappedPrices;
+	private Map<String, ArrayList<Double>> mappedPrices;
 	private List<GasDataPoint> dataSet;
-	private StringBuilder results;
+	StringBuilder results;
 	
-	public YearAverageRunnable(List<GasDataPoint> data) {
+	public MonthAverageRunnable(List<GasDataPoint> data) {
 		dataSet = data;
-		mappedPrices = new LinkedHashMap<Integer, ArrayList<Double>>(); // keys maintain insertion order
+		mappedPrices = new LinkedHashMap<String, ArrayList<Double>>(); // keys maintain insertion order
 		results = new StringBuilder();
 	}
 	
 	private void mapPricesToYear() {
 		for(GasDataPoint dp : dataSet) {
 			
-			int year = (Integer)dp.getYear();
+			String monthYear = String.valueOf(dp.getMonth()) + "/" + String.valueOf(dp.getYear());
 			double price = (Double)dp.getPrice();
 			
 			//if year key not found, add new key value pair entry
-			if(!mappedPrices.containsKey(year)) {
-				mappedPrices.put(year, new ArrayList<Double>()); // add a new key value pair
-				mappedPrices.get(year).add(price);               // add price
+			if(!mappedPrices.containsKey(monthYear)) {
+				mappedPrices.put(monthYear, new ArrayList<Double>()); // add a new key value pair
+				mappedPrices.get(monthYear).add(price);               // add price
 			} else {
 				//else add price to existing year
-				mappedPrices.get(year).add(price);
+				mappedPrices.get(monthYear).add(price);
 			}
 		}
 	}
 	
 	private void averagePrices() {
 		
-		results.append("AVERAGES BY YEAR\n");
-		for(Integer year : mappedPrices.keySet()) {
-			OptionalDouble ave = mappedPrices.get(year)
+		results.append("AVERAGES BY MONTH\n");
+		for(String monthYear : mappedPrices.keySet()) {
+			OptionalDouble ave = mappedPrices.get(monthYear)
 					.stream()
 					.mapToDouble(d -> d.doubleValue())
 					.average();
 			
 			DecimalFormat formatter = new DecimalFormat("0.00");
-			String formattedAve = "[ NO DATA ]"; // default
+			String formattedAve = "[ NO DATA ]"; // default 
 			if(ave.isPresent()) {
 				formattedAve = formatter.format(ave.getAsDouble());
 			}
 			
-			String line = year+" : "+formattedAve+"\n";
+			String line = monthYear+" : "+formattedAve+"\n";
 			results.append(line);
 		}
 	}
-
+	
 	@Override
 	public String call() throws Exception {
 		mapPricesToYear();

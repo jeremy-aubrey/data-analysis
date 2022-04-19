@@ -4,9 +4,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 //********************************************************************
 //
@@ -37,18 +42,21 @@ public class Program8 {
 		List<GasDataPoint> data = new ArrayList<GasDataPoint>();
 		test.populateList(data, filePath);
 		
-		for(GasDataPoint gd: data) {
-			System.out.println(gd);
-		}
-		System.out.println(data.size() + " data objects found");
-		
 		int coreCount = Runtime.getRuntime().availableProcessors();
 		ExecutorService pool = Executors.newFixedThreadPool(coreCount);
 		
+		System.out.println("GAS PRICE STATISTICS\n");
+		
 		// TESTS //
-		pool.submit(new YearAverageRunnable(data));
+		Future<String> yearAverages = pool.submit(new YearAverageRunnable(data));
+		Future<String> monthAverages = pool.submit(new MonthAverageRunnable(data));
 		
-		
+		try {
+			System.out.println(yearAverages.get());
+			System.out.println(monthAverages.get());
+		} catch (CancellationException | ExecutionException | InterruptedException e) {
+			e.printStackTrace();
+		}
 		
 		
 		// shutdown
