@@ -30,7 +30,38 @@ public class Program8 {
 		Program8 test = new Program8();
 		test.developerInfo();
 		
-	}
+		String filePath = "GasPrices.txt";
+		List<GasData> data = new ArrayList<GasData>();
+		
+		try (BufferedReader reader = new BufferedReader(
+				new FileReader(new File(filePath)))) {
+			
+			String line = reader.readLine();
+			while(line != null) {
+				
+				String[] arr = line.split("[-:]");
+				try {
+					int month = Integer.parseInt(arr[0]);
+					int day = Integer.parseInt(arr[1]);
+					int year = Integer.parseInt(arr[2]);
+					double price = Double.parseDouble(arr[3]);
+					data.add(new GasData(month, day, year, price));
+				} catch (NumberFormatException | NullPointerException e) {
+					
+				}
+				line = reader.readLine();
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+		
+		for(GasData gd: data) {
+			System.out.println(gd);
+		}
+		System.out.println(data.size() + " data objects found");
+		
+	}// end main method
 	
     //***************************************************************
     //
