@@ -4,6 +4,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 //********************************************************************
 //
@@ -31,8 +34,34 @@ public class Program8 {
 		test.developerInfo();
 		
 		String filePath = "GasPrices.txt";
-		List<GasData> data = new ArrayList<GasData>();
+		List<GasDataPoint> data = new ArrayList<GasDataPoint>();
+		test.populateList(data, filePath);
 		
+		for(GasDataPoint gd: data) {
+			System.out.println(gd);
+		}
+		System.out.println(data.size() + " data objects found");
+		
+		int coreCount = Runtime.getRuntime().availableProcessors();
+		ExecutorService pool = Executors.newFixedThreadPool(coreCount);
+		
+		// TESTS //
+		pool.submit(new YearAverageRunnable(data));
+		
+		
+		
+		
+		// shutdown
+		pool.shutdown();
+		try {
+			pool.awaitTermination(1, TimeUnit.MINUTES);
+		} catch (InterruptedException e) {
+			System.out.println(e.getMessage());
+		}
+		
+	}// end main method
+	
+	public void populateList(List<GasDataPoint> dataList, String filePath) {
 		try (BufferedReader reader = new BufferedReader(
 				new FileReader(new File(filePath)))) {
 			
@@ -45,23 +74,17 @@ public class Program8 {
 					int day = Integer.parseInt(arr[1]);
 					int year = Integer.parseInt(arr[2]);
 					double price = Double.parseDouble(arr[3]);
-					data.add(new GasData(month, day, year, price));
+					dataList.add(new GasDataPoint(month, day, year, price)); // format is correct, add new GasData object
 				} catch (NumberFormatException | NullPointerException e) {
-					
+					e.printStackTrace(); 
 				}
-				line = reader.readLine();
+				line = reader.readLine(); // read the next line
 			}
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 		} 
-		
-		for(GasData gd: data) {
-			System.out.println(gd);
-		}
-		System.out.println(data.size() + " data objects found");
-		
-	}// end main method
+	}
 	
     //***************************************************************
     //
