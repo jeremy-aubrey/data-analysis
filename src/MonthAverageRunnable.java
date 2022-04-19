@@ -8,9 +8,9 @@ import java.util.concurrent.Callable;
 
 public class MonthAverageRunnable implements Callable<String> {
 
-	private Map<String, ArrayList<Double>> mappedPrices;
-	private List<GasDataPoint> dataSet;
-	StringBuilder results;
+	private Map<String, ArrayList<Double>> mappedPrices;    // month/year -> prices (mapping)
+	private List<GasDataPoint> dataSet;                     // original data set
+	StringBuilder results;                                  // results to return
 	
 	public MonthAverageRunnable(List<GasDataPoint> data) {
 		dataSet = data;
@@ -50,7 +50,7 @@ public class MonthAverageRunnable implements Callable<String> {
 				formattedAve = formatter.format(ave.getAsDouble());
 			}
 			
-			String line = monthYear+" : "+formattedAve+"\n";
+			String line = String.format("%-8s:%5s%n",monthYear,formattedAve);
 			results.append(line);
 		}
 	}

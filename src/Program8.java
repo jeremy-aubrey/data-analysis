@@ -10,8 +10,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 //********************************************************************
 //
@@ -76,7 +74,7 @@ public class Program8 {
 			String line = reader.readLine();
 			while(line != null) {
 				
-				String[] arr = line.split("[-:]");
+				String[] arr = line.split("[-:]"); // split on - and : characters
 				try {
 					int month = Integer.parseInt(arr[0]);
 					int day = Integer.parseInt(arr[1]);
