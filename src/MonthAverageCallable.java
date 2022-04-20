@@ -27,11 +27,11 @@ import java.util.concurrent.Callable;
 
 public class MonthAverageCallable implements Callable<String> {
 
-	private List<GasDataPoint> dataSet;
+	private List<GasDataPoint> dataList;
 	
 	// constructor
 	public MonthAverageCallable(List<GasDataPoint> data) {
-		dataSet = data;
+		dataList = data;
 	}
 	
     //***************************************************************
@@ -51,7 +51,7 @@ public class MonthAverageCallable implements Callable<String> {
 		
 		Map<String, ArrayList<Double>> mappedPrices = new LinkedHashMap<String, ArrayList<Double>>();
 		
-		for(GasDataPoint dp : dataSet) {
+		for(GasDataPoint dp : dataList) {
 			
 			String monthYear = String.valueOf(dp.getMonth()) + "/" + String.valueOf(dp.getYear());
 			double price = (Double)dp.getPrice();

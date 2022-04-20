@@ -25,11 +25,11 @@ import java.util.stream.Collectors;
 
 public class AscendingSortCallable implements Callable<String> {
 
-	private List<GasDataPoint> dataSet;     
+	private List<GasDataPoint> dataList;     
 	
 	// constructor
 	public AscendingSortCallable(List<GasDataPoint> data) {
-		dataSet = data;
+		dataList = data;
 	}
 	
     //***************************************************************
@@ -45,9 +45,9 @@ public class AscendingSortCallable implements Callable<String> {
     //  Returns:      List<GasDataPoint> (data objects) sorted
     //
     //**************************************************************
-	private List<GasDataPoint> sortDataAscending(List<GasDataPoint> list) {
+	private List<GasDataPoint> sortDataAscending(List<GasDataPoint> dataList) {
 
-		List<GasDataPoint> sorted = dataSet.stream()
+		List<GasDataPoint> sorted = dataList.stream()
 				.sorted(Comparator.comparingDouble(GasDataPoint::getPrice))
 				.collect(Collectors.toList());
 
@@ -105,7 +105,7 @@ public class AscendingSortCallable implements Callable<String> {
 		
 		//sort data and pass it to be processed
 		String results = " [ NO DATA FOUND ]"; // default
-		List<GasDataPoint> sortedList = sortDataAscending(dataSet);
+		List<GasDataPoint> sortedList = sortDataAscending(dataList);
 		if(!sortedList.isEmpty()) {
 			results = generateResults(sortedList);
 		}

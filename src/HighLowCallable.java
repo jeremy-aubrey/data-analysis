@@ -28,11 +28,11 @@ import java.util.stream.Collectors;
 
 public class HighLowCallable implements Callable<String> {
 	
-	private List<GasDataPoint> data;
+	private List<GasDataPoint> dataList;
 	
 	// constructor
 	public HighLowCallable(List<GasDataPoint> data) {
-		this.data = data;
+		dataList = data;
 	}
 	
     //***************************************************************
@@ -52,7 +52,7 @@ public class HighLowCallable implements Callable<String> {
 		
 		Map<Integer, ArrayList<GasDataPoint>> mappedDataPoints = new LinkedHashMap<Integer, ArrayList<GasDataPoint>>();
 		
-		for(GasDataPoint dp : data) {
+		for(GasDataPoint dp : dataList) {
 			
 			int year = (Integer)dp.getYear();
 			
