@@ -36,7 +36,7 @@ public class Program8 {
 		Program8 test = new Program8();
 		test.developerInfo();
 		
-		String filePath = "MissingData.txt";
+		String filePath = "GasPrices.txt";
 		List<GasDataPoint> data = new ArrayList<GasDataPoint>();
 		test.populateList(data, filePath);
 		
@@ -51,11 +51,15 @@ public class Program8 {
 			Future<String> yearAverages = pool.submit(new YearAverageCallable(data));
 			Future<String> monthAverages = pool.submit(new MonthAverageCallable(data));
 			Future<String> lowHighByYear = pool.submit(new HighLowCallable(data));
+			Future<String> sortedAscending = pool.submit(new AscendingSortCallable(data));
+			Future<String> sortedDescending = pool.submit(new DescendingSortCallable(data));
 			
 			try {
 				System.out.println(yearAverages.get());
 				System.out.println(monthAverages.get());
 				System.out.println(lowHighByYear.get());
+				System.out.println(sortedAscending.get());
+				System.out.println(sortedDescending.get());
 			} catch (CancellationException | ExecutionException | InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -67,7 +71,6 @@ public class Program8 {
 			} catch (InterruptedException e) {
 				System.out.println(e.getMessage());
 			}
-			
 		}
 		
 		System.out.println("[ COMPLETE ]");
@@ -102,7 +105,7 @@ public class Program8 {
 			}
 			
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("[ ERROR - "+e.getLocalizedMessage()+" ]");
 		} 
 		System.out.println("[ GOT "+dataList.size()+" RESULTS ]");
 	}

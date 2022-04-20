@@ -37,7 +37,7 @@ public class YearAverageCallable implements Callable<String> {
 	
 	private void averagePrices() {
 		
-		results.append("AVERAGES BY YEAR\n");
+		results.append("AVERAGES BY YEAR\n");                            
 		results.append(String.format("%-7s%s%n","YEAR","PRICE (AVG)"));
 		for(Integer year : mappedPrices.keySet()) {
 			OptionalDouble avg = mappedPrices.get(year)
