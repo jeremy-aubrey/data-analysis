@@ -125,7 +125,7 @@ public class Program8 {
     //  Returns:      N/A 
     //
     //**************************************************************
-	public void populateList(List<GasDataPoint> dataList, String filePath) {
+	private void populateList(List<GasDataPoint> dataList, String filePath) {
 		System.out.println("[ READING FILE... ]");
 		try (BufferedReader reader = new BufferedReader(
 				new FileReader(new File(filePath)))) {

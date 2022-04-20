@@ -129,12 +129,12 @@ public class HighLowCallable implements Callable<String> {
 		
 		//extract data from object containing lowest price
 		GasDataPoint low = sortedDataByPrices.get(0);
-		String lowDate = low.getDay()+"/"+low.getMonth()+"/"+low.getYear();
+		String lowDate = low.getMonth()+"/"+low.getDay()+"/"+low.getYear();
 		String lowPrice = formatter.format(low.getPrice());
 		
 		//extract data from object containing highest price
 		GasDataPoint high = sortedDataByPrices.get(lastIndex);
-		String highDate = high.getDay()+"/"+high.getMonth()+"/"+high.getYear();
+		String highDate = high.getMonth()+"/"+high.getDay()+"/"+high.getYear();
 		String highPrice = formatter.format(high.getPrice());
 		
 		//format data

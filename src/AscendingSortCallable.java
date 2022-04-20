@@ -77,7 +77,7 @@ public class AscendingSortCallable implements Callable<String> {
 		
 		//for each GasDataPoint object, get the date and price
 		for(GasDataPoint dp : sortedList) {
-			String date = dp.getDay()+"/"+dp.getMonth()+"/"+dp.getYear();
+			String date = dp.getMonth()+"/"+dp.getDay()+"/"+dp.getYear();
 			DecimalFormat formatter = new DecimalFormat("0.000");
 			String formattedPrice = formatter.format(dp.getPrice());
 			String line = String.format("%-11s:%6s%n",date,formattedPrice);
