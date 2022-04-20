@@ -1,102 +1,89 @@
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.OptionalDouble;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 public class HighLowCallable implements Callable<String> {
 	
-	private Map<Integer, ArrayList<Double>> mappedPrices;   // month/year -> prices (mapping)
-	private List<GasDataPoint> dataSet;                     // original data set
-	StringBuilder results;                                  // results to return
+	private List<GasDataPoint> rawData;
 	
 	public HighLowCallable(List<GasDataPoint> data) {
-		dataSet = data;
-		mappedPrices = new LinkedHashMap<Integer, ArrayList<Double>>(); // keys maintain insertion order
-		results = new StringBuilder();
+		rawData = data;
 	}
 	
-	private void mapPricesToYear() {
-		for(GasDataPoint dp : dataSet) {
+	private Map<Integer, ArrayList<GasDataPoint>> mapDataToYear() {
+		Map<Integer, ArrayList<GasDataPoint>> mappedData = new LinkedHashMap<Integer, ArrayList<GasDataPoint>>();
+		for(GasDataPoint dp : rawData) {
 			
 			int year = (Integer)dp.getYear();
-			double price = (Double)dp.getPrice();
 			
 			//if year key not found, add new key value pair entry
-			if(!mappedPrices.containsKey(year)) {
-				mappedPrices.put(year, new ArrayList<Double>()); // add a new key value pair
-				mappedPrices.get(year).add(price);               // add price
+			if(!mappedData.containsKey(year)) {
+				mappedData.put(year, new ArrayList<GasDataPoint>()); // add a new key value pair
+				mappedData.get(year).add(dp);               // add price
 			} else {
 				//else add price to existing year
-				mappedPrices.get(year).add(price);
+				mappedData.get(year).add(dp);
 			}
 		}
+		return mappedData;
 	}
 	
-	private void getMinAndMax() {
-		
+	private String generateResults(Map<Integer, ArrayList<GasDataPoint>> mappedData) {
+		StringBuilder results = new StringBuilder();
 		results.append("LOWEST AND HIGHEST PRICES BY YEAR\n");
-		results.append(String.format("%-6s%4s%7s%n","YEAR","LOW","HIGH"));
-		for(Integer year : mappedPrices.keySet()) {
+		results.append(String.format("%-5s:%6s%12s%7s%12s%n","YEAR","LOW","(DATE)","HIGH","(DATE)"));
+		for(Integer year : mappedData.keySet()) {
 			
-			double min = getMinPrice(year);
-			double max = getMaxPrice(year);
-			
-			DecimalFormat formatter = new DecimalFormat("0.000");
-			String formattedMin = "----"; // default (missing data)
-			String formattedMax = "----"; // default (missing data)
-			
-			if(min != -1) {
-				formattedMin = formatter.format(min);
-			}
-			
-			if(max != -1) {
-				formattedMax = formatter.format(max);
-			}
-			
-			String line = String.format("%-5s:%6s%6s%n",year,formattedMin,formattedMax);
-			results.append(line);
+			String result = getYearMinAndMax(year,mappedData);
+			results.append(result);
 		}
+		return results.toString();
 	}
 	
-	private double getMinPrice(Integer year) {
-		OptionalDouble min = mappedPrices.get(year)
-				.stream()
-				.mapToDouble(d -> d.doubleValue())
-				.min();
+	private String getYearMinAndMax(Integer year, Map<Integer, ArrayList<GasDataPoint>> mappedData) {
 		
-		double minResult = -1;
+		List<GasDataPoint> yearData = mappedData.get(year);
+		List<GasDataPoint> sortedDataByPrices = sortDataAscending(yearData);
+		int lastIndex = sortedDataByPrices.size() - 1;
+		DecimalFormat formatter = new DecimalFormat("0.000");
 		
-		if(min.isPresent()) {
-			minResult = min.getAsDouble();
-		}
+		GasDataPoint low = sortedDataByPrices.get(0);
+		String lowDate = low.getDay()+"/"+low.getMonth()+"/"+low.getYear();
+		String lowPrice = formatter.format(low.getPrice());
 		
-		return minResult;
+		GasDataPoint high = sortedDataByPrices.get(lastIndex);
+		String highDate = high.getDay()+"/"+high.getMonth()+"/"+high.getYear();
+		String highPrice = formatter.format(high.getPrice());
+		
+		String line = String.format("%-5s:%6s%12s%7s%12s%n",
+				year,lowPrice, lowDate, highPrice,highDate);
+		
+		return line;
 	}
 	
-	private double getMaxPrice(Integer year) {
-		OptionalDouble min = mappedPrices.get(year)
-				.stream()
-				.mapToDouble(d -> d.doubleValue())
-				.max();
-		
-		double maxResult = -1;
-		
-		if(min.isPresent()) {
-			maxResult = min.getAsDouble();
-		}
-		
-		return maxResult;
+	private List<GasDataPoint> sortDataAscending(List<GasDataPoint> list) {
+
+		List<GasDataPoint> sorted = list.stream()
+				.sorted(Comparator.comparingDouble(GasDataPoint::getPrice))
+				.collect(Collectors.toList());
+
+		return sorted;
 	}
+	
 	
 	@Override
 	public String call() throws Exception {
-		mapPricesToYear();
-		getMinAndMax();
-		
-		return results.toString();
+		String results = " [ NO DATA FOUND ]"; // default
+		Map<Integer, ArrayList<GasDataPoint>> mappedPrices = mapDataToYear();
+		if(!mappedPrices.isEmpty()) {
+			results = generateResults(mappedPrices);
+		}
+		return results;
 	}
 
 }

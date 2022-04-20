@@ -41,8 +41,12 @@ public class AscendingSortCallable implements Callable<String> {
 	
 	@Override
 	public String call() throws Exception {
+		String results = " [ NO DATA FOUND ]"; // default
 		List<GasDataPoint> sortedList = sortDataAscending();
-		return generateResults(sortedList);
+		if(!sortedList.isEmpty()) {
+			results = generateResults(sortedList);
+		}
+		return results;
 	}
 	
 

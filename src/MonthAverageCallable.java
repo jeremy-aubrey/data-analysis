@@ -8,17 +8,14 @@ import java.util.concurrent.Callable;
 
 public class MonthAverageCallable implements Callable<String> {
 
-	private Map<String, ArrayList<Double>> mappedPrices;    // month/year -> prices (mapping)
-	private List<GasDataPoint> dataSet;                     // original data set
-	StringBuilder results;                                  // results to return
+	private List<GasDataPoint> dataSet;
 	
 	public MonthAverageCallable(List<GasDataPoint> data) {
 		dataSet = data;
-		mappedPrices = new LinkedHashMap<String, ArrayList<Double>>(); // keys maintain insertion order
-		results = new StringBuilder();
 	}
 	
-	private void mapPricesToYear() {
+	private Map<String, ArrayList<Double>> mapPricesToYear() {
+		Map<String, ArrayList<Double>> mappedPrices = new LinkedHashMap<String, ArrayList<Double>>();
 		for(GasDataPoint dp : dataSet) {
 			
 			String monthYear = String.valueOf(dp.getMonth()) + "/" + String.valueOf(dp.getYear());
@@ -33,35 +30,47 @@ public class MonthAverageCallable implements Callable<String> {
 				mappedPrices.get(monthYear).add(price);
 			}
 		}
+		return mappedPrices;
 	}
 	
-	private void averagePrices() {
-		
+	private String generateResults(Map<String, ArrayList<Double>> mappedPrices) {
+		StringBuilder results = new StringBuilder();
 		results.append("AVERAGES BY MONTH\n");
 		results.append(String.format("%-10s%s%n","MO/YEAR","PRICE (AVG)"));
-		for(String monthYear : mappedPrices.keySet()) {
-			OptionalDouble avg = mappedPrices.get(monthYear)
-					.stream()
-					.mapToDouble(d -> d.doubleValue())
-					.average();
+		for(String date : mappedPrices.keySet()) {
 			
-			DecimalFormat formatter = new DecimalFormat("0.000");
-			String formattedAve = "----"; // default (missing data)
-			if(avg.isPresent()) {
-				formattedAve = formatter.format(avg.getAsDouble());
-			}
+			String result = getAveragePrice(date, mappedPrices);
 			
-			String line = String.format("%-8s:%6s%n",monthYear,formattedAve);
-			results.append(line);
+			results.append(result);
 		}
+		return results.toString();
+	}
+	
+	private String getAveragePrice(String date, Map<String, ArrayList<Double>> mappedPrices) {
+		
+		OptionalDouble avg = mappedPrices.get(date)
+				.stream()
+				.mapToDouble(d -> d.doubleValue())
+				.average();
+		
+		DecimalFormat formatter = new DecimalFormat("0.000");
+		String formattedAvg = "----"; // default (missing data)
+		if(avg.isPresent()) {
+			formattedAvg = formatter.format(avg.getAsDouble());
+		}
+		
+		String line = String.format("%-8s:%6s%n",date,formattedAvg);
+		return line;
 	}
 	
 	@Override
 	public String call() throws Exception {
-		mapPricesToYear();
-		averagePrices();
-		
-		return results.toString();
+		String results = " [ NO DATA FOUND ]"; // default
+		Map<String, ArrayList<Double>> mappedPrices = mapPricesToYear();
+		if(!mappedPrices.isEmpty()) {
+			results = generateResults(mappedPrices);
+		}
+		return results;
 	}
 
 }

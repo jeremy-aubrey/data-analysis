@@ -8,17 +8,14 @@ import java.util.concurrent.Callable;
 
 public class YearAverageCallable implements Callable<String> {
 
-	private Map<Integer, ArrayList<Double>> mappedPrices;    // year -> prices list (mapping)
-	private List<GasDataPoint> dataSet;                      // original data set
-	private StringBuilder results;                           // results to return
+	private List<GasDataPoint> dataSet;
 	
 	public YearAverageCallable(List<GasDataPoint> data) {
 		dataSet = data;
-		mappedPrices = new LinkedHashMap<Integer, ArrayList<Double>>(); // keys maintain insertion order
-		results = new StringBuilder();
 	}
 	
-	private void mapPricesToYear() {
+	private Map<Integer, ArrayList<Double>> mapPricesToYear() {
+		Map<Integer, ArrayList<Double>> mappedPrices = new LinkedHashMap<Integer, ArrayList<Double>>();
 		for(GasDataPoint dp : dataSet) {
 			
 			int year = (Integer)dp.getYear();
@@ -33,35 +30,46 @@ public class YearAverageCallable implements Callable<String> {
 				mappedPrices.get(year).add(price);
 			}
 		}
+		return mappedPrices;
 	}
 	
-	private void averagePrices() {
-		
+	private String generateResults(Map<Integer, ArrayList<Double>> mappedPrices) {
+		StringBuilder results = new StringBuilder();
 		results.append("AVERAGES BY YEAR\n");                            
 		results.append(String.format("%-7s%s%n","YEAR","PRICE (AVG)"));
 		for(Integer year : mappedPrices.keySet()) {
-			OptionalDouble avg = mappedPrices.get(year)
-					.stream()
-					.mapToDouble(d -> d.doubleValue())
-					.average();
 			
-			DecimalFormat formatter = new DecimalFormat("0.000");
-			String formattedAve = "----"; // default (missing data)
-			if(avg.isPresent()) {
-				formattedAve = formatter.format(avg.getAsDouble());
-			}
-			
-			String line = String.format("%-5s:%6s%n",year,formattedAve);
-			results.append(line);
+			String result = getAveragePrice(year, mappedPrices);
+			results.append(result);
 		}
+		return results.toString();
+	}
+	
+	private String getAveragePrice(Integer year, Map<Integer, ArrayList<Double>> mappedPrices) {
+		
+		OptionalDouble avg = mappedPrices.get(year)
+				.stream()
+				.mapToDouble(d -> d.doubleValue())
+				.average();
+		
+		DecimalFormat formatter = new DecimalFormat("0.000");
+		String formattedAvg = "----"; // default (missing data)
+		if(avg.isPresent()) {
+			formattedAvg = formatter.format(avg.getAsDouble());
+		}
+		
+		String line = String.format("%-5s:%6s%n",year,formattedAvg);
+		return line;
 	}
 
 	@Override
 	public String call() throws Exception {
-		mapPricesToYear();
-		averagePrices();
-		
-		return results.toString();
+		String results = " [ NO DATA FOUND ]"; // default
+		Map<Integer, ArrayList<Double>> mappedPrices = mapPricesToYear();
+		if(!mappedPrices.isEmpty()) {
+			results = generateResults(mappedPrices);
+		}
+		return results;
 	}
 
 }

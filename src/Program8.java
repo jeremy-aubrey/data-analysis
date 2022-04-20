@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,38 +43,38 @@ public class Program8 {
 		
 		int coreCount = Runtime.getRuntime().availableProcessors();
 		ExecutorService pool = Executors.newFixedThreadPool(coreCount);
+	
+		Future<String> yearAverages = pool.submit(new YearAverageCallable(data));
+		Future<String> monthAverages = pool.submit(new MonthAverageCallable(data));
+		Future<String> lowHighByYear = pool.submit(new HighLowCallable(data));
+		Future<String> sortedAscending = pool.submit(new AscendingSortCallable(data));
+		Future<String> sortedDescending = pool.submit(new DescendingSortCallable(data));
 		
-		if(!data.isEmpty()) {
-			
+		try {
 			System.out.println("\nGAS PRICE STATISTICS\n");
+			System.out.println(yearAverages.get());
+			System.out.println(monthAverages.get());
+			System.out.println(lowHighByYear.get());
 			
-			// TESTS //
-			Future<String> yearAverages = pool.submit(new YearAverageCallable(data));
-			Future<String> monthAverages = pool.submit(new MonthAverageCallable(data));
-			Future<String> lowHighByYear = pool.submit(new HighLowCallable(data));
-			Future<String> sortedAscending = pool.submit(new AscendingSortCallable(data));
-			Future<String> sortedDescending = pool.submit(new DescendingSortCallable(data));
+			String ascendingPriceData = sortedAscending.get();
+			String descendingPriceData = sortedDescending.get();
 			
-			try {
-				System.out.println(yearAverages.get());
-				System.out.println(monthAverages.get());
-				System.out.println(lowHighByYear.get());
-				System.out.println(sortedAscending.get());
-				System.out.println(sortedDescending.get());
-			} catch (CancellationException | ExecutionException | InterruptedException e) {
-				e.printStackTrace();
-			}
+			test.createFile("Prices_Sorted_Ascending.txt", ascendingPriceData);
+			test.createFile("Prices_Sorted_Descending.txt", descendingPriceData);
 			
-			// shutdown
-			pool.shutdown();
-			try {
-				pool.awaitTermination(1, TimeUnit.MINUTES);
-			} catch (InterruptedException e) {
-				System.out.println(e.getMessage());
-			}
+		} catch (CancellationException | ExecutionException | InterruptedException e) {
+			e.printStackTrace();
 		}
 		
-		System.out.println("[ COMPLETE ]");
+		// shutdown
+		pool.shutdown();
+		try {
+			pool.awaitTermination(1, TimeUnit.MINUTES);
+		} catch (InterruptedException e) {
+			System.out.println(e.getMessage());
+		}
+	
+	System.out.println("[ COMPLETE ]");
 		
 	}// end main method
 	
@@ -93,7 +94,9 @@ public class Program8 {
 						int day = Integer.parseInt(arr[1]);
 						int year = Integer.parseInt(arr[2]);
 						double price = Double.parseDouble(arr[3]);
-						dataList.add(new GasDataPoint(month, day, year, price)); // format is correct, add new GasData object
+						if(isValidDate(day, month, year)) {
+							dataList.add(new GasDataPoint(month, day, year, price)); // date is valid
+						}
 					} catch (NumberFormatException | NullPointerException e) {
 						System.out.println("[ BAD DATA ON LINE "+lineNumber+" - OMMITED ]");
 					}
@@ -108,6 +111,26 @@ public class Program8 {
 			System.out.println("[ ERROR - "+e.getLocalizedMessage()+" ]");
 		} 
 		System.out.println("[ GOT "+dataList.size()+" RESULTS ]");
+	}
+	
+	private boolean isValidDate(int day, int month, int year) {
+		boolean isValid = false;
+		if(day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900) {
+			isValid = true;
+		}
+		return isValid;
+	}
+	
+	private void createFile(String name, String data) {
+		
+		try {
+			FileWriter fw = new FileWriter(name);
+			fw.write(data);
+			fw.close();
+		} catch(IOException e) {
+			System.out.println(" [ ERROR OCCURED WRITING FILE ]");
+		}
+		
 	}
 	
     //***************************************************************

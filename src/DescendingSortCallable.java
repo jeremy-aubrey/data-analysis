@@ -41,7 +41,11 @@ public class DescendingSortCallable implements Callable<String> {
 	
 	@Override
 	public String call() throws Exception {
+		String results = " [ NO DATA FOUND ]"; // default
 		List<GasDataPoint> sortedList = sortDataDescending();
-		return generateResults(sortedList);
+		if(!sortedList.isEmpty()) {
+			results = generateResults(sortedList);
+		}
+		return results;
 	}
 }
