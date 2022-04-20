@@ -5,12 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.concurrent.Callable;
-import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
 
 public class HighLowCallable implements Callable<String> {
 	
-	private Map<Integer, ArrayList<Double>> mappedPrices;    // month/year -> prices (mapping)
+	private Map<Integer, ArrayList<Double>> mappedPrices;   // month/year -> prices (mapping)
 	private List<GasDataPoint> dataSet;                     // original data set
 	StringBuilder results;                                  // results to return
 	
@@ -64,7 +62,11 @@ public class HighLowCallable implements Callable<String> {
 	}
 	
 	private double getMinPrice(Integer year) {
-		OptionalDouble min = mappedPrices.get(year).stream().mapToDouble(d -> d.doubleValue()).min();
+		OptionalDouble min = mappedPrices.get(year)
+				.stream()
+				.mapToDouble(d -> d.doubleValue())
+				.min();
+		
 		double minResult = -1;
 		
 		if(min.isPresent()) {
@@ -75,7 +77,11 @@ public class HighLowCallable implements Callable<String> {
 	}
 	
 	private double getMaxPrice(Integer year) {
-		OptionalDouble min = mappedPrices.get(year).stream().mapToDouble(d -> d.doubleValue()).max();
+		OptionalDouble min = mappedPrices.get(year)
+				.stream()
+				.mapToDouble(d -> d.doubleValue())
+				.max();
+		
 		double maxResult = -1;
 		
 		if(min.isPresent()) {
