@@ -1,17 +1,3 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
 //********************************************************************
 //
 //  Author:        Jeremy Aubrey
@@ -26,9 +12,33 @@ import java.util.concurrent.TimeUnit;
 //
 //  Instructor:    Fred Kumi 
 //
-//  Description:   TODO 
+//  Description:   A multi-threaded program that generates statistics based
+//                 on historical gas price data read from a file.
+//                 
+//                 Data displayed :
+//                 - Average price per year
+//                 - Average price per month
+//                 - High and Low prices per year
+//                 
+//                 Data written to file:
+//                 - List of prices (ascending)
+//                 - List of prices (descending)
 //
 //********************************************************************
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class Program8 {
 
@@ -37,19 +47,23 @@ public class Program8 {
 		Program8 test = new Program8();
 		test.developerInfo();
 		
+		//populate data List from file data
 		String filePath = "GasPrices.txt";
 		List<GasDataPoint> data = new ArrayList<GasDataPoint>();
 		test.populateList(data, filePath);
 		
+		//multi-threading
 		int coreCount = Runtime.getRuntime().availableProcessors();
 		ExecutorService pool = Executors.newFixedThreadPool(coreCount);
-	
+		
+		//process statistics in separate threads
 		Future<String> yearAverages = pool.submit(new YearAverageCallable(data));
 		Future<String> monthAverages = pool.submit(new MonthAverageCallable(data));
 		Future<String> lowHighByYear = pool.submit(new HighLowCallable(data));
 		Future<String> sortedAscending = pool.submit(new AscendingSortCallable(data));
 		Future<String> sortedDescending = pool.submit(new DescendingSortCallable(data));
 		
+		//display results and create text files
 		try {
 			System.out.println("\nGAS PRICE STATISTICS\n");
 			System.out.println(yearAverages.get());
@@ -78,16 +92,52 @@ public class Program8 {
 		
 	}// end main method
 	
+    //***************************************************************
+    //
+    //  Method:       isValidDate (Non Static)
+    // 
+    //  Description:  A helper method to validate dates.
+    //
+    //  Parameters:   int (day), int (month), int (year)
+    //
+    //  Returns:      boolean (true if date is valid) 
+    //
+    //**************************************************************
+	private boolean isValidDate(int day, int month, int year) {
+		
+		boolean isValid = false;
+		if(day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900) {
+			isValid = true;
+		}
+		return isValid;
+		
+	}//end isValidDate method
+	
+    //***************************************************************
+    //
+    //  Method:       populateList (Non Static)
+    // 
+    //  Description:  A helper method to populate the data List with 
+    //                GasDataPoint objects from data read from a file.
+    //
+    //  Parameters:   List, String (filePath)
+    //
+    //  Returns:      N/A 
+    //
+    //**************************************************************
 	public void populateList(List<GasDataPoint> dataList, String filePath) {
 		System.out.println("[ READING FILE... ]");
 		try (BufferedReader reader = new BufferedReader(
 				new FileReader(new File(filePath)))) {
 			
+			//for each line in file, create an array of data
 			String line = reader.readLine();
 			int lineNumber = 0;
 			while(line != null) {
 				lineNumber++;
 				String[] arr = line.split("[-:]"); // split on - and : characters
+				
+				// validate data, and instantiate new object
 				if(arr.length == 4) {
 					try {
 						int month = Integer.parseInt(arr[0]);
@@ -100,6 +150,7 @@ public class Program8 {
 					} catch (NumberFormatException | NullPointerException e) {
 						System.out.println("[ BAD DATA ON LINE "+lineNumber+" - OMMITED ]");
 					}
+					
 				} else {
 					System.out.println("[ BAD DATA ON LINE "+lineNumber+" - OMMITED ]");
 				}
@@ -110,17 +161,21 @@ public class Program8 {
 		} catch (IOException e) {
 			System.out.println("[ ERROR - "+e.getLocalizedMessage()+" ]");
 		} 
-		System.out.println("[ GOT "+dataList.size()+" RESULTS ]");
-	}
+		System.out.println("[ GOT "+dataList.size()+" RECORDS ]");
+		
+	}//end populateList method
 	
-	private boolean isValidDate(int day, int month, int year) {
-		boolean isValid = false;
-		if(day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900) {
-			isValid = true;
-		}
-		return isValid;
-	}
-	
+    //***************************************************************
+    //
+    //  Method:       createFile (Non Static)
+    // 
+    //  Description:  Creates a file and writes data to it.
+    //
+    //  Parameters:   String (name of file), String (data)
+    //
+    //  Returns:      N/A 
+    //
+    //**************************************************************
 	private void createFile(String name, String data) {
 		
 		try {
@@ -130,8 +185,7 @@ public class Program8 {
 		} catch(IOException e) {
 			System.out.println(" [ ERROR OCCURED WRITING FILE ]");
 		}
-		
-	}
+	}//end createFile method
 	
     //***************************************************************
     //
@@ -151,4 +205,5 @@ public class Program8 {
        System.out.println("Program: 8\n");
 
     } // end developerInfo method
-}
+    
+}//end Program8 class

@@ -1,3 +1,21 @@
+//********************************************************************
+//
+//  Author:        Jeremy Aubrey
+//
+//  Program #:     8
+//
+//  File Name:     GasDataPoint.java
+//
+//  Course:        COSC 4301 - Modern Programming
+//
+//  Due Date:      04/20/2022
+//
+//  Instructor:    Fred Kumi 
+//
+//  Description:   A class that maintains data about weekly average prices for a
+//                 gallon of gasoline.
+//
+//********************************************************************
 
 public class GasDataPoint {
 	
@@ -6,6 +24,7 @@ public class GasDataPoint {
 	private int year;
 	private double price;
 	
+	// constructor
 	public GasDataPoint(int month, int day, int year, double price) {
 		
 		if(month > 0 && month <= 12) {
@@ -23,7 +42,7 @@ public class GasDataPoint {
 		if(price > 0.00) {
 			this.price = price;
 		}
-	}
+	}//end constructor
 
 	public int getMonth() {
 		return month;
@@ -46,4 +65,4 @@ public class GasDataPoint {
 		return "GasDataPoint [" + month + "," + day + "," + year + "," + price + "]";
 	}
 
-}
+}//end GasDataPoint class
