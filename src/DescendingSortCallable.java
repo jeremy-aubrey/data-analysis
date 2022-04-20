@@ -64,7 +64,7 @@ public class DescendingSortCallable implements Callable<String> {
     //
     //  Parameters:   List<GasDataPoint> (sorted list)
     //
-    //  Returns:      String
+    //  Returns:      String (aggregated results)
     //
     //**************************************************************
 	private String generateResults(List<GasDataPoint> sortedList) {

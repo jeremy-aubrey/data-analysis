@@ -52,7 +52,7 @@ public class Program8 {
 		List<GasDataPoint> data = new ArrayList<GasDataPoint>();
 		test.populateList(data, filePath);
 		
-		//multi-threading
+		//to run calculations in separate threads
 		int coreCount = Runtime.getRuntime().availableProcessors();
 		ExecutorService pool = Executors.newFixedThreadPool(coreCount);
 		
@@ -80,7 +80,7 @@ public class Program8 {
 			e.printStackTrace();
 		}
 		
-		// shutdown
+		// shutdown thread pool
 		pool.shutdown();
 		try {
 			pool.awaitTermination(1, TimeUnit.MINUTES);

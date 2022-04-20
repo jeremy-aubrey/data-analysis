@@ -77,9 +77,9 @@ public class YearAverageCallable implements Callable<String> {
     //  Description:  Generates a String containing the average price for 
     //                a given year in the mapped data.
     //
-    //  Parameters:   None
+    //  Parameters:   Map<Integer, ArrayList<Double>> (year, prices list)
     //
-    //  Returns:      Map<Integer(year), ArrayList<Double>(prices)>
+    //  Returns:      String (aggregated results)
     //
     //**************************************************************
 	private String generateResults(Map<Integer, ArrayList<Double>> mappedPrices) {
@@ -110,7 +110,7 @@ public class YearAverageCallable implements Callable<String> {
     //
     //  Parameters:   Integer (key), Map<Integer, ArrayList<Double>> (year, prices list)
     //
-    //  Returns:      Map<Integer(year), ArrayList<Double>(prices)>
+    //  Returns:      String (avg price for a single year)
     //
     //**************************************************************
 	private String getAveragePrice(Integer year, Map<Integer, ArrayList<Double>> mappedPrices) {

@@ -77,9 +77,9 @@ public class HighLowCallable implements Callable<String> {
     //  Description:  Generates a String containing the low price, 
     //                high price, and their associated dates.
     //
-    //  Parameters:   None
+    //  Parameters:   Map<Integer, ArrayList<GasDataPoint>> (year, data objects)
     //
-    //  Returns:      String
+    //  Returns:      String (aggregated results)
     //
     //**************************************************************
 	private String generateResults(Map<Integer, ArrayList<GasDataPoint>> mappedDataPoints) {
@@ -112,7 +112,7 @@ public class HighLowCallable implements Callable<String> {
     //
     //  Parameters:   Integer(key), Map<Integer, ArrayList<GasDataPoint>> (year, data objects)
     //
-    //  Returns:      String
+    //  Returns:      String (low, high data for a single year)
     //
     //**************************************************************
 	private String getYearMinAndMax(Integer year, Map<Integer, ArrayList<GasDataPoint>> mappedDataPoints) {

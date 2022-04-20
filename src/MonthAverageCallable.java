@@ -4,7 +4,7 @@
 //
 //  Program #:     8
 //
-//  File Name:     YearAverageCallable.java
+//  File Name:     MonthAverageCallable.java
 //
 //  Course:        COSC 4301 - Modern Programming
 //
@@ -79,7 +79,7 @@ public class MonthAverageCallable implements Callable<String> {
     //
     //  Parameters:   Map<String, ArrayList<Double>> (date, prices list)
     //
-    //  Returns:      String
+    //  Returns:      String (aggregated results)
     //
     //**************************************************************
 	private String generateResults(Map<String, ArrayList<Double>> mappedPrices) {
@@ -110,7 +110,7 @@ public class MonthAverageCallable implements Callable<String> {
     //
     //  Parameters:   String (key), Map<String, ArrayList<Double>> (date, prices list)
     //
-    //  Returns:      String
+    //  Returns:      String (avg price for a single month)
     //
     //**************************************************************
 	private String getAveragePrice(String date, Map<String, ArrayList<Double>> mappedPrices) {
