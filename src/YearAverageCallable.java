@@ -6,13 +6,13 @@ import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.concurrent.Callable;
 
-public class YearAverageRunnable implements Callable<String> {
+public class YearAverageCallable implements Callable<String> {
 
 	private Map<Integer, ArrayList<Double>> mappedPrices;    // year -> prices list (mapping)
 	private List<GasDataPoint> dataSet;                      // original data set
 	private StringBuilder results;                           // results to return
 	
-	public YearAverageRunnable(List<GasDataPoint> data) {
+	public YearAverageCallable(List<GasDataPoint> data) {
 		dataSet = data;
 		mappedPrices = new LinkedHashMap<Integer, ArrayList<Double>>(); // keys maintain insertion order
 		results = new StringBuilder();
@@ -38,19 +38,20 @@ public class YearAverageRunnable implements Callable<String> {
 	private void averagePrices() {
 		
 		results.append("AVERAGES BY YEAR\n");
+		results.append(String.format("%-7s%s%n","YEAR","PRICE (AVG)"));
 		for(Integer year : mappedPrices.keySet()) {
-			OptionalDouble ave = mappedPrices.get(year)
+			OptionalDouble avg = mappedPrices.get(year)
 					.stream()
 					.mapToDouble(d -> d.doubleValue())
 					.average();
 			
-			DecimalFormat formatter = new DecimalFormat("0.00");
-			String formattedAve = "[ NO DATA ]"; // default
-			if(ave.isPresent()) {
-				formattedAve = formatter.format(ave.getAsDouble());
+			DecimalFormat formatter = new DecimalFormat("0.000");
+			String formattedAve = "----"; // default (missing data)
+			if(avg.isPresent()) {
+				formattedAve = formatter.format(avg.getAsDouble());
 			}
 			
-			String line = year+" : "+formattedAve+"\n"; // individual result (year, average)
+			String line = String.format("%-5s:%6s%n",year,formattedAve);
 			results.append(line);
 		}
 	}

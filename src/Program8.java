@@ -46,12 +46,14 @@ public class Program8 {
 		System.out.println("GAS PRICE STATISTICS\n");
 		
 		// TESTS //
-		Future<String> yearAverages = pool.submit(new YearAverageRunnable(data));
-		Future<String> monthAverages = pool.submit(new MonthAverageRunnable(data));
+		Future<String> yearAverages = pool.submit(new YearAverageCallable(data));
+		Future<String> monthAverages = pool.submit(new MonthAverageCallable(data));
+		Future<String> lowHighByYear = pool.submit(new HighLowCallable(data));
 		
 		try {
 			System.out.println(yearAverages.get());
 			System.out.println(monthAverages.get());
+			System.out.println(lowHighByYear.get());
 		} catch (CancellationException | ExecutionException | InterruptedException e) {
 			e.printStackTrace();
 		}
